@@ -1,4 +1,3 @@
-
 module router_fifo (
     input        clock,
     input        resetn,      
