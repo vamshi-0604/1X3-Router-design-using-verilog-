@@ -1,5 +1,3 @@
-
-
 module router_fsm (
     input        clock,
     input        resetn,        
