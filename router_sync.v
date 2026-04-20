@@ -1,40 +1,28 @@
-// ============================================================
-// Module : router_sync
-// Description : Synchronizer for 1x3 Router
-//               - Selects correct FIFO full signal
-//               - Generates write enables for each FIFO
-//               - Generates soft resets on timeout
-// ============================================================
-
 module router_sync (
     input        clock,
-    input        resetn,        // active low reset
-    input  [1:0] port_addr,     // decoded port address from reg
-    input        detect_add,    // FSM in DECODE_ADDRESS state
-    input        write_enb_reg, // write enable from FSM
-    input        pkt_valid,     // packet valid
-    input        fifo_full_0,   // FIFO 0 full
-    input        fifo_full_1,   // FIFO 1 full
-    input        fifo_full_2,   // FIFO 2 full
-    input        fifo_empty_0,  // FIFO 0 empty
-    input        fifo_empty_1,  // FIFO 1 empty
-    input        fifo_empty_2,  // FIFO 2 empty
+    input        resetn,       
+    input  [1:0] port_addr,     
+    input        detect_add,   
+    input        write_enb_reg, 
+    input        pkt_valid,     
+    input        fifo_full_0,   
+    input        fifo_full_1,  
+    input        fifo_full_2,  
+    input        fifo_empty_0,  
+    input        fifo_empty_1,  
+    input        fifo_empty_2, 
 
-    output reg        fifo_full,     // selected FIFO full (to FSM)
-    output reg [2:0]  write_enb,     // per-FIFO write enables
-    output reg        soft_reset_0,  // soft reset for FIFO 0
-    output reg        soft_reset_1,  // soft reset for FIFO 1
-    output reg        soft_reset_2   // soft reset for FIFO 2
+    output reg        fifo_full,   
+    output reg [2:0]  write_enb,    
+    output reg        soft_reset_0,  
+    output reg        soft_reset_1, 
+    output reg        soft_reset_2   
 );
 
-    // -------------------------------------------------------
-    // Timeout counters (30-cycle timeout per port)
-    // -------------------------------------------------------
+
     reg [4:0] count0, count1, count2;
 
-    // -------------------------------------------------------
-    // FIFO Full MUX — select full signal for current port
-    // -------------------------------------------------------
+   
     always @(*) begin
         case (port_addr)
             2'b00: fifo_full = fifo_full_0;
@@ -44,9 +32,7 @@ module router_sync (
         endcase
     end
 
-    // -------------------------------------------------------
-    // Write Enable Decoder
-    // -------------------------------------------------------
+ 
     always @(*) begin
         write_enb = 3'b000;
         if (write_enb_reg) begin
@@ -59,10 +45,7 @@ module router_sync (
         end
     end
 
-    // -------------------------------------------------------
-    // Soft Reset Logic — Port 0
-    // Asserted if FIFO 0 is not empty for 30 clock cycles
-    // -------------------------------------------------------
+ 
     always @(posedge clock or negedge resetn) begin
         if (!resetn) begin
             count0      <= 5'b0;
@@ -79,9 +62,6 @@ module router_sync (
         end
     end
 
-    // -------------------------------------------------------
-    // Soft Reset Logic — Port 1
-    // -------------------------------------------------------
     always @(posedge clock or negedge resetn) begin
         if (!resetn) begin
             count1      <= 5'b0;
@@ -98,9 +78,7 @@ module router_sync (
         end
     end
 
-    // -------------------------------------------------------
-    // Soft Reset Logic — Port 2
-    // -------------------------------------------------------
+
     always @(posedge clock or negedge resetn) begin
         if (!resetn) begin
             count2      <= 5'b0;
